@@ -1,0 +1,76 @@
+<!-- Insertar en el <head> del index.html -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Ainsophic",
+  "alternateName": "EGEO AI",
+  "url": "https://ainsophic.com",
+  "logo": "https://egeo.ai/favicon.svg",
+  "description": "Desarrolladores de EGEO AI, una revolucionaria plataforma de inteligencia artificial con Universal World Model",
+  "sameAs": [
+    "https://twitter.com/EgeoAI",
+    "https://www.linkedin.com/company/ainsophic",
+    "https://github.com/ainsophic"
+  ],
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "AR",
+    "addressRegion": "Argentina",
+    "areaServed": ["AR", "Worldwide"]
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "Customer Service",
+    "email": "info@ainsophic.com",
+    "availableLanguage": ["es", "en"]
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "EGEO AI Waitlist",
+  "description": "Lista de espera para EGEO AI - Universal World Model",
+  "url": "https://egeo.ai",
+  "applicationCategory": "DeveloperApplication",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "screenshot": "https://egeo.ai/favicon.svg",
+  "softwareRequirements": "Navegador web moderno",
+  "operatingSystem": "Web",
+  "isAccessibleForFree": true,
+  "keywords": "EGEO AI, Universal World Model, Inteligencia Artificial, IA, Ainsophic, Argentina, Mendoza",
+  "author": {
+    "@type": "Organization",
+    "name": "Ainsophic"
+  },
+  "inLanguage": "es"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://egeo.ai"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Waitlist",
+      "item": "https://egeo.ai#waitlist"
+    }
+  ]
+}
+</script>

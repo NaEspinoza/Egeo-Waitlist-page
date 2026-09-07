@@ -1,0 +1,5 @@
+Contact: security@ainsophic.com
+Preferred-Languages: es, en
+Canonical: https://egeo.ai/.well-known/security.txt
+Policy: https://egeo.ai/security-policy
+Acknowledgments: https://egeo.ai/acknowledgments

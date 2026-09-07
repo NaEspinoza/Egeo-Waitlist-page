@@ -1,0 +1,127 @@
+services:
+  # Traefik v2.10: Reverse proxy con load balancing y SSL automático (Let's Encrypt)
+  # Gestiona enrutamiento de tráfico HTTP/HTTPS, certificados SSL y compresión
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: always
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    command:
+      # API y dashboard Traefik
+      - "--api.insecure=false"
+      - "--api.dashboard=true"
+      - "--ping=true"
+
+      # Puntos de entrada HTTP/HTTPS
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # Redirige automáticamente HTTP → HTTPS
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+
+      # Configuración Let's Encrypt para SSL automático
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@tudominio.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+
+      # Docker provider: autodescubre y enruta servicios con labels
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=egeo-network"
+      - "--providers.docker.watch=true"
+
+      # Configuración de logs y debugging
+      - "--log.level=INFO"
+      - "--accesslog=true"
+    ports:
+      - "80:80"      # HTTP (redirige a HTTPS automáticamente)
+      - "443:443"    # HTTPS (tráfico de producción)
+      - "8080:8080"  # Dashboard Traefik (solo desarrollo, requiere auth)
+    volumes:
+      # Socket de Docker: permite a Traefik detectar servicios
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Directorio para almacenar certificados SSL
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - egeo-network
+    labels:
+      # Habilita integración de Traefik en este servicio
+      - "traefik.enable=true"
+      # Router del dashboard: acceso local a http://localhost:8080/dashboard/
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      # Autenticación básica: usuario 'admin', contraseña 'admin' (CAMBIAR EN PRODUCCIÓN)
+      - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$r7vRl5rI$$l8V3xKZqnWvFGQdj5eHHS/"
+
+  # Frontend: Aplicación Vite + React
+  # Sirve archivos estáticos compilados a través de un servidor Node en puerto 3000
+  # Traefik maneja SSL, compresión y enrutamiento
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: egeo-frontend:latest
+    container_name: egeo-frontend
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - egeo-network
+    labels:
+      # Habilita Traefik para este servicio
+      - "traefik.enable=true"
+      # Router HTTP: redirige a HTTPS automáticamente
+      - "traefik.http.routers.egeo-frontend-http.rule=Host(`egeo.tudominio.com`)"
+      - "traefik.http.routers.egeo-frontend-http.entrypoints=web"
+      # Router HTTPS: servicio principal en producción
+      - "traefik.http.routers.egeo-frontend.rule=Host(`egeo.tudominio.com`)"
+      - "traefik.http.routers.egeo-frontend.entrypoints=websecure"
+      - "traefik.http.routers.egeo-frontend.tls.certresolver=letsencrypt"
+      # Service: mapea a puerto interno 3000 (donde corre el servidor Vite)
+      - "traefik.http.services.egeo-frontend.loadbalancer.server.port=3000"
+      # Middleware: compresión GZIP para optimizar transferencia
+      - "traefik.http.middlewares.gzip.compress=true"
+      - "traefik.http.routers.egeo-frontend.middlewares=gzip"
+      # Middleware HTTP → HTTPS redirect
+      - "traefik.http.routers.egeo-frontend-http.middlewares=redirect-https"
+      - "traefik.http.middlewares.redirect-https.redirectscheme.scheme=https"
+    environment:
+      # Modo de ejecución: producción (no recarga en caliente)
+      - NODE_ENV=production
+    expose:
+      # Puerto interno (no expuesto directamente, solo a través de Traefik)
+      - "3000"
+    depends_on:
+      traefik:
+        condition: service_healthy
+
+volumes:
+  # Almacena certificados SSL de Let's Encrypt (persistente entre reinicios)
+  letsencrypt:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./letsencrypt
+
+networks:
+  # Red privada compartida entre servicios (aislada del host)
+  egeo-network:
+    driver: bridge
+    driver_opts:
+      # Com_path to enable IPv6 if needed
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+#    ipam:
+#      config:
+#        - subnet: 172.20.0.0/16

@@ -1,0 +1,37 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: egeo-frontend:latest
+    container_name: egeo-frontend
+    restart: always
+#    healthcheck:
+#      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+#      interval: 30s
+#      timeout: 5s
+#      retries: 3
+#      start_period: 10s
+    networks:
+      - traefik-net
+    labels:
+      # 1. Activación en el Ingress local
+      - "traefik.enable=true"
+      # 2. Ruteo L7 (Quinteto Atómico)
+      - "traefik.http.routers.egeo-waitlist.rule=Host(`waitlist.egeo.ai`) || Host(`egeo.ai`)"
+      # 3. Seguridad y Entrypoints (HAProxy le habla a Traefik por el 8443)
+      - "traefik.http.routers.egeo-waitlist.entrypoints=websecure"
+      - "traefik.http.routers.egeo-waitlist.tls.certresolver=myresolver"
+      # 4. Asignación de Puerto Interno
+      - "traefik.http.services.egeo-waitlist.loadbalancer.server.port=3000"
+      # 5. Middlewares de Optimización
+      - "traefik.http.middlewares.egeo-compress.compress=true"
+      - "traefik.http.routers.egeo-waitlist.middlewares=egeo-compress"
+    environment:
+      - NODE_ENV=production
+    expose:
+      - "3000"
+
+networks:
+  traefik-net:
+    external: true

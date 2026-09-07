@@ -1,0 +1,67 @@
+# Archivos y carpetas a excluir del contexto de build de Docker
+# Reduce tamaño del contexto enviado al demonio Docker
+
+# Control de versiones
+.git
+.gitignore
+.github
+
+# IDE y editores
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Dependencias instaladas (se instalan nuevamente en contenedor)
+node_modules
+
+# Artefactos de construcción (se regeneran en el contenedor)
+dist
+build
+.next
+.nuxt
+out
+
+# Logs
+npm-debug.log*
+npm-error.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Archivos de entorno locales (se usan .env.production en el contenedor)
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+
+# Documentación y archivos no necesarios
+*.md
+README.md
+LICENSE
+CHANGELOG.md
+*.pdf
+
+# Docker y runtime
+docker-compose.yml
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Otras carpetas del proyecto innecesarias
+server/
+public/
+.cache
+coverage
+.nyc_output
+
+# Archivos de datos (para contenedores sin montar estos volúmenes)
+pocketbase-data
+pocketbase-logs
+
+# Variables persistentes
+letsencrypt/acme.json

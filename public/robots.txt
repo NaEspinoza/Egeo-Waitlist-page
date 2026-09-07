@@ -1,0 +1,21 @@
+# Robots.txt - EGEO AI Waitlist
+# Permite a los buscadores indexar toda la página
+
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /favicon.svg
+Allow: /public/
+
+# Desalienta robots lentos
+User-agent: AhrefsBot
+Crawl-delay: 1
+
+User-agent: SemrushBot
+Crawl-delay: 1
+
+# Sitemap (cuando esté disponible)
+Sitemap: https://egeo.ai/sitemap.xml
+
+# Tiempo de refresco
+Crawl-delay: 0.5

@@ -1,0 +1,5 @@
+# Ads.txt file for EGEO AI
+# This file lists authorized vendors for digital advertising
+
+# Ainsophic - Direct
+ainsophic.com, direct, f08c47fac0942fa0

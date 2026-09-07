@@ -1,0 +1,40 @@
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+
+# Docker & Compose
+letsencrypt/
+pocketbase-data/
+pocketbase-logs/
+
+# Environment (solo .env.* sin .production)
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test.local
+
+# IDE
+*.swp
+*.swo
+*~
+*.sln
+*.sw?
+.env
