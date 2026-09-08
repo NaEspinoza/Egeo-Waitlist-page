@@ -9,6 +9,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createClient } from '@supabase/supabase-js';
 
 const EgeoLanding = () => {
   // Estado del countdown: descomposición temporal (días, horas, minutos, segundos)
@@ -35,6 +36,11 @@ const EgeoLanding = () => {
    * En desarrollo: npm run dev lee .env.development o .env.local
    */
   const API_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:5000';
+
+  // Cliente Supabase para uso cliente-side (usar anon key en variables VITE_*)
+  const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string) || '';
+  const SUPABASE_ANON_KEY = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) || '';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   /**
    * Hook 1: Countdown Timer
@@ -235,21 +241,19 @@ const EgeoLanding = () => {
     setStatus({ message: '', type: '' });
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/waitlist`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email
-          })
-        }
-      );
+      // Inserta directamente en la tabla `waitlist` usando el cliente Supabase
+      const { data: result, error } = await supabase
+        .from('waitlist')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          subscribed_at: new Date().toISOString()
+        })
+        .select()
+        .single();
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Fallo en el registro cognitivo');
+      if (error) {
+        throw error;
       }
 
       setStatus({

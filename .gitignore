@@ -30,6 +30,7 @@ pocketbase-logs/
 .env.development
 .env.development.local
 .env.test.local
+.env.production
 
 # IDE
 *.swp
